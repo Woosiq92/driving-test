@@ -116,6 +116,12 @@
   #coach ol li.now { color:#ffe27a; font-weight:700; }
   #coach .c-tip { margin-top:8px; font-size:11.5px; color:#8fb0c0; border-top:1px solid rgba(255,255,255,.08); padding-top:7px; }
 
+  /* 직각주차 기준점 안내 */
+  #parkguide { position:absolute; left:50%; bottom:calc(96px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+    background:rgba(20,150,210,.92); color:#fff; font-weight:800; font-size:15px; padding:10px 18px; border-radius:12px;
+    display:none; text-align:center; max-width:88vw; box-shadow:0 4px 16px rgba(0,0,0,.45); z-index:13; pointer-events:none; }
+  body.parkguide #parkguide { display:block; }
+
   /* 후방 보조 (운전석 시점) */
   #rearview { position:absolute; top:calc(70px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%);
     width:min(340px,46vw); aspect-ratio:2.6/1; border:2px solid rgba(230,240,255,.55); border-radius:8px;
@@ -276,6 +282,8 @@
 
 <div id="rearview"><span class="rv-label">후방 보조 (후진)</span></div>
 
+<div id="parkguide"><span id="pg-text"></span></div>
+
 <div id="result"><div class="card">
   <div class="verdict" id="r-verdict">합격</div>
   <div class="final" id="r-final"></div>
@@ -307,7 +315,7 @@
     <div class="pgrid">
       <div class="pitem" onclick="__startPractice('park')"><b>직각주차</b>기준점 잡고 후진</div>
       <div class="pitem" onclick="__startPractice('ramp')"><b>경사로</b>정지 후 밀림없이 출발</div>
-      <div class="pitem" onclick="__startPractice('sudden')"><b>돌발 급정지</b>3초 내 정지+비상등</div>
+      <div class="pitem" onclick="__startPractice('sudden')"><b>돌발 급정지</b>2초 내 정지+비상등</div>
       <div class="pitem" onclick="__startPractice('turn')"><b>좌·우회전</b>지시등+차로 지키기</div>
     </div>
     <button class="menu-btn ghost" onclick="__go('main')">← 뒤로</button>
@@ -329,33 +337,33 @@
     <section>
       <h3>주요 감점</h3>
       <ul class="kdl">
-        <li><span>가속구간에서 20km/h 미달</span><em>감점</em></li>
-        <li><span>방향지시등 미점등 (출발·회전·진로변경)</span><em>5점</em></li>
-        <li><span>돌발 시 급정지 불이행</span><em>10점</em></li>
-        <li><span>돌발 시 비상점멸등 미점등</span><em>5점</em></li>
-        <li><span>경사로 정지선 미정지</span><em>10점</em></li>
-        <li><span>기어·조작 미숙, 시동 꺼짐</span><em>5점</em></li>
-        <li><span>직각주차 라인/연석 접촉, 시간(2분) 초과</span><em>감점</em></li>
+        <li><span>직각주차 검지선(노란선) 접촉 (회당)</span><em>10점</em></li>
+        <li><span>직각주차 2분 초과</span><em>10점</em></li>
+        <li><span>직각주차 주차브레이크 미작동</span><em>10점</em></li>
+        <li><span>가속구간 20km/h 미달</span><em>감점</em></li>
+        <li><span>돌발 급제동 불이행 / 비상등 미점등</span><em>감점</em></li>
+        <li><span>방향지시등 미점등 (출발·회전·진로변경)</span><em>감점</em></li>
+        <li><span>기어변속 등 지정 조작 미이행</span><em>감점</em></li>
       </ul>
     </section>
     <section>
       <h3>실격 (즉시 불합격)</h3>
       <ul class="kbad">
-        <li>안전벨트 미착용</li>
+        <li>좌석안전벨트 미착용</li>
         <li>출발 지시 후 <b>30초 이내 미출발</b></li>
-        <li>경사로에서 정지 후 뒤로 크게(약 50cm 이상) 밀림</li>
+        <li>경사로에서 정지 후 뒤로 <b>50cm 이상 밀림</b></li>
         <li>신호 위반 (적색신호 진행)</li>
-        <li>코스 이탈 · 바퀴가 연석에 올라감</li>
-        <li>시험 중 구조물 충돌 등 안전사고</li>
+        <li>코스 이탈(탈선) · 바퀴가 연석에 접촉</li>
+        <li>시험 중 안전사고 · 구조물 충돌</li>
         <li>주차브레이크(핸드브레이크) 미해제 상태로 진행</li>
-        <li>코스 항목 중 하나라도 미이행</li>
+        <li>각 코스를 시도하지 않거나 제대로 이행하지 않음</li>
       </ul>
     </section>
     <section>
       <h3>항목별 합격 요령</h3>
       <div class="ktip"><b>직각주차</b> 칸을 지나 앞으로 → 뒷바퀴가 라인 넘으면 정지 → 핸들 주차방향 끝까지 꺾고 <b>악셀 없이 크리프로 후진</b> → 후방 보며 진입 → 원위치·정지.</div>
       <div class="ktip"><b>경사로</b> 정지선에 정확히 정지 → 밀리지 않게 브레이크 유지 → 가속으로 부드럽게 출발. 뒤로 밀리면 실격.</div>
-      <div class="ktip"><b>돌발</b> "돌발" 표시 즉시 급정지 + <b>비상등</b>. 3초 내 정지.</div>
+      <div class="ktip"><b>돌발</b> "돌발" 표시 즉시 급정지(2초 내) + <b>비상등(3초 내)</b>.</div>
       <div class="ktip"><b>좌·우회전</b> 미리 방향지시등 → 속도 줄여 차로(연석) 안쪽으로. 연석 접촉 주의.</div>
     </section>
     <p class="knote">배점은 시험장·기준 개정에 따라 다를 수 있어요. 최종 확인은 <b>도로교통공단(koroad.or.kr)</b>.</p>
@@ -381,7 +389,8 @@
     <div class="qresult" id="qr-title">결과</div>
     <div class="qresult-sub" id="qr-sub"></div>
     <div class="qbtns2">
-      <button class="prim" onclick="__startQuiz()">다시 풀기</button>
+      <button class="prim" id="q-retry-wrong" onclick="__startQuizWrong()" style="display:none">오답만 다시 풀기</button>
+      <button class="prim" onclick="__startQuiz()">전체 다시 풀기</button>
       <button class="ghost" onclick="__quizToKnowledge()">지식 다시 보기</button>
       <button class="ghost" onclick="__closeKnowledge()">메뉴로</button>
     </div>
@@ -561,6 +570,21 @@ const rampY=1.1;
   // 표지
   addSign(cx-0.5, cy, '직각주차', 0xffffff, 0x1c5fd1);
 })();
+
+// 직각주차 기준점 가이드 (연습 모드에서만 표시)
+const parkGuide = new THREE.Group();
+(function(){
+  const {cx,cy,w,d}=ZONE.park;
+  const mat=new THREE.MeshBasicMaterial({color:0x2ee6ff, transparent:true, opacity:0.85});
+  const seg=(x,z,sx,sz)=>{ const m=new THREE.Mesh(new THREE.PlaneGeometry(sx,sz),mat);
+    m.rotation.x=-Math.PI/2; m.position.set(x,0.05,-z); parkGuide.add(m); };
+  const x0=cx+1.8, x1=x0+d;
+  seg((x0+x1)/2, cy-w, d,0.2); seg((x0+x1)/2, cy+w, d,0.2); seg(x1,cy,0.2,w*2);  // 칸 강조선
+  const ring=new THREE.Mesh(new THREE.RingGeometry(0.7,1.05,28), mat);           // 타겟 링
+  ring.rotation.x=-Math.PI/2; ring.position.set((x0+x1)/2,0.06,-cy); parkGuide.add(ring);
+})();
+parkGuide.visible=false; scene.add(parkGuide);
+function setParkGuide(on){ parkGuide.visible=on; document.body.classList.toggle('parkguide', on); }
 
 // 신호교차로 신호등
 let trafficLight, tlState='green', tlTimer=0;
@@ -757,6 +781,9 @@ function advance(){
   if(S.mode==='practice'){ practiceDone(true); return; }
   S.stage++; S.stageT=0; setMission();
   toast('✔ '+MISSIONS[Math.min(S.stage-1,MISSIONS.length-1)].s.split('·')[1].trim()+' 통과','g'); }
+// 코치 단계 하이라이트 (i번째 단계=진행중, 이전=완료)
+function coachNow(i){ const lis=el('c-steps').children;
+  for(let k=0;k<lis.length;k++) lis[k].className = k<i?'done':(k===i?'now':''); }
 
 function updateLogic(dt){
   S.tGlobal+=dt; S.stageT+=dt; if(S.curbCooldown>0)S.curbCooldown-=dt;
@@ -802,9 +829,9 @@ function updateLogic(dt){
       if(S.suddenActive){
         S.suddenT+=dt;
         const stopped=Math.abs(S.v)<0.4;
-        el('m-sub').textContent=`3초 내 정지 + 비상등  (${S.suddenT.toFixed(1)}s)`;
+        el('m-sub').textContent=`2초 내 급정지 + 비상등(H)  (${S.suddenT.toFixed(1)}s)`;
         if(stopped){
-          if(S.suddenT>3) penalty(10,'돌발 급정지 지연');
+          if(S.suddenT>2) penalty(10,"돌발 급정지 지연");
           if(!S.haz) penalty(5,'돌발 비상등 미점등');
           S.suddenActive=false; S.suddenDone=true; suddenSign.visible=false; hideBanner();
           toast('급정지 확인 — 비상등 끄고 출발','g');
@@ -870,6 +897,15 @@ function updateLogic(dt){
         el('m-sub').textContent = inBay
           ? `주차칸 안 · 정지 유지 ${S.parkHold.toFixed(1)}/3.0s`
           : `↓ 후진으로 칸에 진입 (라인 접촉 −10)`;
+        // 기준점 가이드 (연습 모드)
+        if(S.mode==='practice'){
+          let step, txt;
+          if(inBay && Math.abs(S.v)<0.5){ step=4; txt='좋아요! 핸들 펴고 그대로 3초 정지'; }
+          else if(S.gear==='R'){ step=3; txt='천천히 후진 — 후방 보며 파란 칸에 맞추기 (악셀 없이 크리프)'; }
+          else if(S.cy <= cy+2.2){ step=2; txt='여기서 정지! 핸들을 주차칸 쪽으로 끝까지 꺾고 후진(↓)'; }
+          else { step=0; txt='파란 주차칸 옆을 지나 천천히 전진'; }
+          el('pg-text').textContent=txt; coachNow(step);
+        }
         // 주차칸 라인 접촉(대략): 칸 근처인데 벗어나면
         if(inX && !inZ && S.curbCooldown<=0){ penalty(10,'주차 라인 접촉'); S.curbCooldown=2; }
         if(inBay && Math.abs(S.v)<0.3){ S.parkHold+=dt; } else if(inBay){ S.parkHold=Math.max(0,S.parkHold-dt); }
@@ -1069,8 +1105,8 @@ const PRACTICE = {
     tip:'정지 후 30초 안에 출발. 뒤로 50cm 이상 밀리면 실격.',
     done:'경사로 성공! 핵심은 정지 → 밀림없이 출발.' },
   sudden: { name:'돌발 급정지', stage:3, cx:0, cy:20, h:Math.PI/2, gear:'D',
-    steps:['앞으로 주행(↑)','"돌발" 표시가 뜨면 즉시 급정지(Space)','정지와 동시에 비상등(H)','3초 내 완전 정지'],
-    tip:'표시 뜨고 3초 안에 멈춰야 합니다. 비상등 필수.',
+    steps:['앞으로 주행(↑)','"돌발" 표시가 뜨면 즉시 급정지(Space)','정지와 동시에 비상등(H)','2초 내 급정지 완료'],
+    tip:'표시 뜨고 2초 안에 급정지, 비상등은 3초 내 필수.',
     done:'돌발 대응 성공! 반응속도가 관건.' },
   turn: { name:'좌·우회전', stage:4, cx:0, cy:28, h:Math.PI/2, gear:'D',
     steps:['우측 지시등(E) 켜기','속도 줄이고 코너 진입','차로(연석) 안쪽으로 우회전','코너를 빠져나가면 지시등 끄기'],
@@ -1097,7 +1133,7 @@ function startExam(){
   S.mode='exam'; S.practiceItem=null;
   el('start').style.display='none'; el('pdone').style.display='none';
   document.body.classList.remove('practice'); document.body.classList.add('driving');
-  resetState();
+  resetState(); setParkGuide(false);
   S.stage=0; S.cx=A[0]; S.cy=A[1]; S.h=Math.PI/2; S.engine=false; S.gear='P';
   setMission(); syncCar(); snapCamera();
   S.running=true;
@@ -1110,6 +1146,7 @@ function startPractice(item){
   document.body.classList.add('practice','driving');
   resetState();
   S.stage=p.stage; S.cx=p.cx; S.cy=p.cy; S.h=p.h; S.engine=true; S.gear=p.gear||'D';
+  setParkGuide(item==='park');
   el('m-stage').textContent='연습'; el('m-instr').textContent=p.name; el('m-sub').textContent='';
   el('c-title').textContent=p.name;
   el('c-steps').innerHTML=p.steps.map(s=>`<li>${s}</li>`).join('');
@@ -1129,7 +1166,7 @@ function retry(){ if(S.practiceItem) startPractice(S.practiceItem); }
 function nextItem(){ const i=PORDER.indexOf(S.practiceItem); startPractice(PORDER[(i+1)%PORDER.length]); }
 function toMenu(){
   el('pdone').style.display='none'; el('result').style.display='none';
-  el('start').style.display='flex';
+  el('start').style.display='flex'; setParkGuide(false);
   document.body.classList.remove('practice','driving');
   S.running=false; S.mode='menu'; go('main');
 }
@@ -1151,33 +1188,47 @@ const QUIZ=[
  {q:'안전벨트를 매지 않으면 실격이다.',a:true,ex:'맞다. 안전벨트 미착용은 실격.'},
  {q:'주차브레이크(핸드브레이크)를 풀지 않고 출발해도 문제없다.',a:false,ex:'아니다. 미해제 상태로 진행하면 실격.'},
  {q:'오토매틱 차는 D에 놓고 브레이크만 떼면 악셀 없이도 천천히 굴러간다.',a:true,ex:'맞다(크리프). 직각주차 후진을 크리프로 부드럽게 할 수 있다.'},
+ {q:'직각주차에서 노란 검지선을 바퀴가 밟으면 감점된다.',a:true,ex:'맞다. 검지선 접촉은 회당 10점 감점.'},
+ {q:'직각주차는 진입부터 빠져나오기까지 2분을 넘기면 감점이다.',a:true,ex:'맞다. 2분 초과는 10점 감점.'},
+ {q:'돌발 표시가 뜨면 5초 안에만 멈추면 된다.',a:false,ex:'아니다. 2초 내 급정지, 비상등은 3초 내.'},
+ {q:'가속구간에서는 20km/h까지 올린 뒤 다시 감속해야 한다.',a:true,ex:'맞다. 지정속도 도달 후 감속.'},
+ {q:'출발할 때와 회전할 때 방향지시등을 켜야 한다.',a:true,ex:'맞다. 미점등은 감점.'},
+ {q:'시험관이 지시한 전조등·와이퍼 등 기기 조작은 하지 않아도 된다.',a:false,ex:'아니다. 지정 조작 미이행은 감점·실격 사유.'},
+ {q:'직각주차에서 주차브레이크를 올리지 않으면 감점된다.',a:true,ex:'맞다. 확인 음성 후 주차브레이크 미작동은 10점 감점.'},
+ {q:'합격 점수는 70점이다.',a:false,ex:'아니다. 80점 이상이 합격.'},
 ];
-let qi=0, qscore=0;
+let quizSet=QUIZ, qi=0, qscore=0, qwrong=[];
 function openKnowledge(){ el('quiz').style.display='none'; el('knowledge').style.display='flex';
   const kb=el('knowledge').querySelector('.kbody'); if(kb) kb.scrollTop=0; }
 function closeKnowledge(){ el('knowledge').style.display='none'; el('quiz').style.display='none';
   el('start').style.display='flex'; go('main'); }
-function startQuiz(){ qi=0; qscore=0; el('knowledge').style.display='none'; el('quiz').style.display='flex';
+function startQuiz(set){ quizSet=(set&&set.length)?set:QUIZ; qi=0; qscore=0; qwrong=[];
+  el('knowledge').style.display='none'; el('quiz').style.display='flex';
   el('quiz-done').style.display='none'; el('quiz-play').style.display='block';
-  el('q-total').textContent=QUIZ.length; renderQ(); }
-function renderQ(){ const it=QUIZ[qi];
+  el('q-total').textContent=quizSet.length; renderQ(); }
+function startQuizWrong(){ startQuiz(qwrong.slice()); }
+function renderQ(){ const it=quizSet[qi];
   el('q-idx').textContent=qi+1; el('q-score').textContent=qscore; el('q-text').textContent=it.q;
   el('q-fb').textContent=''; el('q-fb').className='qfb'; el('q-next').style.display='none';
   document.querySelectorAll('.qbtns button').forEach(b=>b.disabled=false); }
-function quizAnswer(v){ const it=QUIZ[qi];
+function quizAnswer(v){ const it=quizSet[qi];
   document.querySelectorAll('.qbtns button').forEach(b=>b.disabled=true);
-  const ok=(v===it.a); if(ok) qscore++;
+  const ok=(v===it.a); if(ok) qscore++; else qwrong.push(it);
   const fb=el('q-fb'); fb.className='qfb '+(ok?'ok':'no'); fb.textContent=(ok?'⭕ 정답! ':'❌ 오답. ')+it.ex;
   el('q-score').textContent=qscore;
-  el('q-next').style.display='inline-block'; el('q-next').textContent=(qi<QUIZ.length-1)?'다음 →':'결과 보기'; }
-function quizNext(){ if(qi<QUIZ.length-1){ qi++; renderQ(); }
+  el('q-next').style.display='inline-block'; el('q-next').textContent=(qi<quizSet.length-1)?'다음 →':'결과 보기'; }
+function quizNext(){ if(qi<quizSet.length-1){ qi++; renderQ(); }
   else{ el('quiz-play').style.display='none'; el('quiz-done').style.display='block';
-    const pass=qscore>=Math.ceil(QUIZ.length*0.7);
-    el('qr-title').textContent=qscore+' / '+QUIZ.length; el('qr-title').style.color=pass?'#33d17a':'#ffcf5c';
-    el('qr-sub').textContent=pass?'좋아요! 핵심 기준을 잘 알고 있어요.':'조금 더! 지식 다시 보고 재도전하세요.'; } }
+    const pass=qscore>=Math.ceil(quizSet.length*0.7);
+    el('qr-title').textContent=qscore+' / '+quizSet.length; el('qr-title').style.color=pass?'#33d17a':'#ffcf5c';
+    el('qr-sub').textContent=pass?'좋아요! 핵심 기준을 잘 알고 있어요.':'조금 더! 지식 다시 보고 재도전하세요.';
+    const wb=el('q-retry-wrong');
+    if(wb){ if(qwrong.length){ wb.style.display='block'; wb.textContent='오답만 다시 풀기 ('+qwrong.length+')'; }
+            else wb.style.display='none'; } } }
 function quizToKnowledge(){ openKnowledge(); }
 window.__openKnowledge=openKnowledge; window.__closeKnowledge=closeKnowledge;
-window.__startQuiz=startQuiz; window.__quizAnswer=quizAnswer; window.__quizNext=quizNext; window.__quizToKnowledge=quizToKnowledge;
+window.__startQuiz=startQuiz; window.__startQuizWrong=startQuizWrong; window.__quizAnswer=quizAnswer;
+window.__quizNext=quizNext; window.__quizToKnowledge=quizToKnowledge;
 
 // ---------- 초기화 ----------
 setTL('green'); setMission(); go('main');
