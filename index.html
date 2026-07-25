@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>운전면허 장내기능시험 3D 시뮬레이터</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -21,12 +21,13 @@
   #mission .instr { font-size:17px; font-weight:700; margin-top:3px; line-height:1.35; }
   #mission .sub { font-size:12px; color:#9fb0c0; margin-top:4px; }
 
-  #score { top:14px; right:14px; padding:10px 14px; text-align:right; min-width:120px; }
+  #score { top:calc(14px + env(safe-area-inset-top)); right:calc(14px + env(safe-area-inset-right));
+    padding:10px 14px; text-align:right; min-width:120px; }
   #score .n { font-size:30px; font-weight:800; line-height:1; }
   #score .l { font-size:11px; color:#9fb0c0; letter-spacing:1px; }
   #score .n.warn { color:#ffcf5c; } #score .n.bad { color:#ff6b6b; }
 
-  #cluster { bottom:16px; left:50%; transform:translateX(-50%); padding:12px 18px;
+  #cluster { bottom:calc(16px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); padding:12px 18px;
     display:flex; align-items:center; gap:22px; }
   .gauge { text-align:center; }
   .gauge .v { font-size:26px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
@@ -104,16 +105,17 @@
   .tbtn.brk { background:rgba(200,60,60,.55); border-color:rgba(255,110,110,.6); }
   .tbtn.gas.act { background:rgba(40,200,100,.85); }
   .tbtn.brk.act { background:rgba(230,70,70,.85); }
-  #t-left  { left:22px;  bottom:30px; }
-  #t-right { left:108px; bottom:30px; }
-  #t-gas   { right:26px; bottom:118px; }
-  #t-brk   { right:26px; bottom:26px; }
+  #t-left  { left:calc(22px + env(safe-area-inset-left));  bottom:calc(30px + env(safe-area-inset-bottom)); }
+  #t-right { left:calc(108px + env(safe-area-inset-left)); bottom:calc(30px + env(safe-area-inset-bottom)); }
+  #t-gas   { right:calc(26px + env(safe-area-inset-right)); bottom:calc(118px + env(safe-area-inset-bottom)); }
+  #t-brk   { right:calc(26px + env(safe-area-inset-right)); bottom:calc(26px + env(safe-area-inset-bottom)); }
   .ttog { pointer-events:auto; -webkit-tap-highlight-color:transparent; text-align:center;
     touch-action:manipulation; padding:9px 14px; border-radius:20px; font-size:13px; font-weight:700;
     background:rgba(20,28,38,.7); border:1.5px solid rgba(150,180,210,.3); color:#c7d2dd; }
   .ttog.on { color:#2fd36b; border-color:rgba(47,211,107,.6); background:rgba(47,211,107,.16); }
   .ttog.on.h { color:#ff5c5c; border-color:rgba(255,92,92,.6); background:rgba(255,92,92,.16); }
-  #tog-row { position:absolute; left:14px; top:14px; display:flex; flex-direction:column; gap:8px; }
+  #tog-row { position:absolute; left:calc(14px + env(safe-area-inset-left)); top:calc(14px + env(safe-area-inset-top));
+    display:flex; flex-direction:column; gap:8px; }
 </style>
 </head>
 <body>
@@ -461,41 +463,51 @@ const MISSIONS = [
 
 // ---------- 입력 ----------
 const keys={};
+// 토글 액션 (키보드·터치 공용)
+function doToggle(k){
+  if(k==='r'){ location.reload(); return; }
+  if(!S.running) return;
+  if(k==='enter'){ if(!S.engine){ S.engine=true; S.gear='D'; toast('시동 ON · 안전벨트 착용','g'); } }
+  else if(k==='q'){ S.sigL=!S.sigL; if(S.sigL)S.sigR=false; }
+  else if(k==='e'){ S.sigR=!S.sigR; if(S.sigR)S.sigL=false; }
+  else if(k==='h'){ S.haz=!S.haz; }
+  else if(k==='l'){ S.head=!S.head; }
+}
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
   if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
   if(keys[k]) return; keys[k]=true;
-  if(!S.running) return;
-  if(k==='enter'){ if(!S.engine){ S.engine=true; S.gear='D'; toast('시동 ON · 안전벨트 착용','g'); } }
-  if(k==='q'){ S.sigL=!S.sigL; if(S.sigL)S.sigR=false; }
-  if(k==='e'){ S.sigR=!S.sigR; if(S.sigR)S.sigL=false; }
-  if(k==='h'){ S.haz=!S.haz; }
-  if(k==='l'){ S.head=!S.head; }
-  if(k==='r'){ location.reload(); }
+  doToggle(k);
 },{passive:false});
 addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; },{passive:false});
 
-// ---------- 모바일 터치 컨트롤 ----------
-const isTouch = matchMedia('(pointer:coarse)').matches || ('ontouchstart' in window);
+// ---------- 모바일 터치 컨트롤 (Pointer Events, keys[] 직접 조작) ----------
+const isTouch = matchMedia('(pointer:coarse)').matches || ('ontouchstart' in window) || navigator.maxTouchPoints>0;
 if(isTouch) document.body.classList.add('touch');
-function fireKey(key,down){ dispatchEvent(new KeyboardEvent(down?'keydown':'keyup',{key})); }
+// 눌림 유지 버튼(페달·조향): pointerdown→keys[k]=true, 캡처로 멀티터치·미끄러짐 대응
 function holdBtn(id,key){
   const el=document.getElementById(id); if(!el) return;
-  const on=e=>{ e.preventDefault(); el.classList.add('act'); fireKey(key,true); };
-  const off=e=>{ if(e)e.preventDefault(); el.classList.remove('act'); fireKey(key,false); };
-  el.addEventListener('touchstart',on,{passive:false});
-  el.addEventListener('touchend',off,{passive:false});
-  el.addEventListener('touchcancel',off,{passive:false});
-  el.addEventListener('mousedown',on); el.addEventListener('mouseup',off); el.addEventListener('mouseleave',off);
+  const on=e=>{ e.preventDefault(); el.classList.add('act'); keys[key]=true;
+    try{ el.setPointerCapture(e.pointerId); }catch(_){} };
+  const off=e=>{ if(e&&e.preventDefault)e.preventDefault(); el.classList.remove('act'); keys[key]=false; };
+  el.addEventListener('pointerdown',on);
+  el.addEventListener('pointerup',off);
+  el.addEventListener('pointercancel',off);
+  el.addEventListener('lostpointercapture',off);
 }
+// 토글 버튼(시동·지시등·비상등): pointerdown 한 번에 액션
 function tapBtn(id,key){
   const el=document.getElementById(id); if(!el) return;
-  const on=e=>{ e.preventDefault(); fireKey(key,true); setTimeout(()=>fireKey(key,false),40); };
-  el.addEventListener('touchstart',on,{passive:false}); el.addEventListener('mousedown',on);
+  el.addEventListener('pointerdown',e=>{ e.preventDefault(); el.classList.add('act');
+    doToggle(key); setTimeout(()=>el.classList.remove('act'),120); });
 }
-holdBtn('t-left','ArrowLeft'); holdBtn('t-right','ArrowRight');
-holdBtn('t-gas','ArrowUp');    holdBtn('t-brk','ArrowDown');
-tapBtn('tog-eng','Enter'); tapBtn('tog-L','q'); tapBtn('tog-R','e'); tapBtn('tog-H','h');
+holdBtn('t-left','arrowleft'); holdBtn('t-right','arrowright');
+holdBtn('t-gas','arrowup');    holdBtn('t-brk','arrowdown');
+tapBtn('tog-eng','enter'); tapBtn('tog-L','q'); tapBtn('tog-R','e'); tapBtn('tog-H','h');
+// 안전망: 창 밖에서 손 떼거나 포커스 잃으면 모든 눌림 해제
+addEventListener('pointercancel',()=>{ ['arrowup','arrowdown','arrowleft','arrowright'].forEach(k=>keys[k]=false); });
+addEventListener('blur',()=>{ ['arrowup','arrowdown','arrowleft','arrowright',' '].forEach(k=>keys[k]=false);
+  document.querySelectorAll('.tbtn.act').forEach(el=>el.classList.remove('act')); });
 
 // ---------- 기하 유틸 ----------
 function distToSeg(px,py,a,b){
