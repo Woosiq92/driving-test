@@ -365,10 +365,17 @@ function curbLine(p0,p1,side){
   const [ax,ay]=W(p0[0],p0[1]), [bx,by]=W(p1[0],p1[1]);
   const dx=bx-ax, dy=by-ay, len=Math.hypot(dx,dy);
   const nx=-dy/len, ny=dx/len;                 // 법선
-  const off=(LANE+2.2)/2 * side;
-  const n=Math.floor(len/1.4);
+  const half=(LANE+2.2)/2, off=half*side;
+  // 안쪽(코스 중심 쪽) 변이면 코너 앞에서 끊어 인접 도로 침범 방지
+  const Cx=27, Cz=-19;                          // 루프 중심 (코스 27,19 → world)
+  const mx=(ax+bx)/2, my=(ay+by)/2;
+  const inner = off*((Cx-mx)*nx + (Cz-my)*ny) > 0;
+  const inset = inner ? half+0.3 : 0.0;
+  const usable = len - 2*inset;
+  if(usable <= 0.5) return;
+  const n=Math.max(1,Math.floor(usable/1.4));
   for(let k=0;k<n;k++){
-    const t=(k+.5)/n;
+    const t=(inset + (k+.5)/n*usable)/len;
     const cx=ax+dx*t+nx*off, cz=ay+dy*t+ny*off;
     const b=new THREE.Mesh(new THREE.BoxGeometry(1.1,0.28,0.34),
       new THREE.MeshStandardMaterial({ color: k%2?0xd23b3b:0xf2f2f2 }));
