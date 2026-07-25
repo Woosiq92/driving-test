@@ -88,6 +88,56 @@
     font-size:17px; font-weight:800; cursor:pointer; font-family:inherit; }
   .mobile-hint { font-size:12px; color:#7f8ea0; margin-top:14px; }
 
+  /* ===== 메뉴 / 연습 ===== */
+  #menu-main, #menu-practice { display:flex; flex-direction:column; gap:12px; margin:22px 0 18px; }
+  .menu-btn { background:#1a2534; color:#eaf0f6; border:1.5px solid rgba(120,150,180,.3); border-radius:14px;
+    padding:16px 20px; font-size:17px; font-weight:800; cursor:pointer; font-family:inherit; text-align:left;
+    display:flex; flex-direction:column; gap:3px; transition:transform .05s, border-color .1s; }
+  .menu-btn span { font-size:12px; font-weight:500; color:#9fb0c0; }
+  .menu-btn:active { transform:scale(.98); }
+  .menu-btn.prim { background:#2f6bff; border-color:#2f6bff; }
+  .menu-btn.prim span { color:#d6e3ff; }
+  .menu-btn.ghost { background:transparent; border-color:rgba(120,150,180,.25); font-size:14px; align-items:center; }
+  .pgrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .pitem { background:#141c28; border:1.5px solid rgba(120,150,180,.28); border-radius:14px; padding:16px 12px;
+    cursor:pointer; font-size:12px; color:#9fb0c0; display:flex; flex-direction:column; gap:4px; text-align:center;
+    transition:transform .05s, border-color .1s; }
+  .pitem b { font-size:16px; color:#eaf0f6; font-weight:800; }
+  .pitem:active { transform:scale(.97); } .pitem:hover { border-color:#2f6bff; }
+
+  /* 코치 패널 */
+  #coach { position:absolute; left:14px; bottom:16px; width:min(280px,52vw); padding:12px 14px; display:none; }
+  body.practice #coach { display:block; }
+  body.practice #log { display:none; }
+  #coach .c-title { font-size:15px; font-weight:800; color:#7fd1ff; margin-bottom:8px; }
+  #coach ol { margin:0; padding-left:20px; }
+  #coach ol li { font-size:12.5px; line-height:1.5; color:#c7d2dd; margin-bottom:3px; }
+  #coach ol li.done { color:#5a6b7a; text-decoration:line-through; }
+  #coach ol li.now { color:#ffe27a; font-weight:700; }
+  #coach .c-tip { margin-top:8px; font-size:11.5px; color:#8fb0c0; border-top:1px solid rgba(255,255,255,.08); padding-top:7px; }
+
+  /* 후방 보조 (운전석 시점) */
+  #rearview { position:absolute; top:calc(70px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%);
+    width:min(340px,46vw); aspect-ratio:2.6/1; border:2px solid rgba(230,240,255,.55); border-radius:8px;
+    box-shadow:0 4px 16px rgba(0,0,0,.4); display:none; overflow:hidden; z-index:12; pointer-events:none; }
+  body.cockpit.driving #rearview { display:block; }
+  #rearview .rv-label { position:absolute; top:3px; left:6px; font-size:10px; color:#cfe0f0;
+    text-shadow:0 1px 2px #000; letter-spacing:.5px; }
+
+  /* 연습 결과 */
+  #pdone { position:fixed; inset:0; z-index:30; display:none; align-items:center; justify-content:center;
+    background:rgba(6,9,13,.75); pointer-events:auto; }
+  #pdone .pcard { background:#131a24; border:1px solid rgba(120,150,180,.3); border-radius:18px;
+    padding:26px 30px; width:min(400px,90vw); text-align:center; }
+  #pdone .pverdict { font-size:38px; font-weight:900; margin-bottom:6px; }
+  #pdone .pverdict.ok { color:#33d17a; } #pdone .pverdict.no { color:#ff5c5c; }
+  #pdone .pmsg { font-size:14px; color:#c7d2dd; line-height:1.6; margin-bottom:18px; }
+  #pdone .pbtns { display:flex; flex-direction:column; gap:9px; }
+  #pdone button { pointer-events:auto; background:#243244; color:#fff; border:0; border-radius:11px;
+    padding:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+  #pdone button.prim { background:#2f6bff; } #pdone button.ghost { background:transparent; color:#9fb0c0; }
+  .ttog.v.on { color:#7fd1ff; border-color:rgba(127,209,255,.6); background:rgba(127,209,255,.16); }
+
   /* ===== 모바일 터치 컨트롤 ===== */
   #touch { position:fixed; inset:0; z-index:15; pointer-events:none; display:none; }
   body.touch #touch { display:block; }
@@ -164,31 +214,54 @@
     <div class="ttog" id="tog-L">◀ 좌</div>
     <div class="ttog" id="tog-R">우 ▶</div>
     <div class="ttog" id="tog-H">⚠ 비상</div>
+    <div class="ttog v" id="tog-view">👁 3D</div>
   </div>
 </div>
 
 <div id="banner"><div class="box"><div class="big" id="banner-txt">돌발</div></div></div>
 
+<div id="coach" class="panel"><div class="c-title" id="c-title">코치</div><ol id="c-steps"></ol>
+  <div class="c-tip" id="c-tip"></div></div>
+
+<div id="rearview"><span class="rv-label">후방 보조 (후진)</span></div>
+
 <div id="result"><div class="card">
   <div class="verdict" id="r-verdict">합격</div>
   <div class="final" id="r-final"></div>
   <div class="rows" id="r-rows"></div>
-  <button onclick="location.reload()">다시 응시</button>
+  <button onclick="location.reload()">처음으로</button>
+</div></div>
+
+<div id="pdone"><div class="pcard">
+  <div class="pverdict" id="pd-v">성공</div>
+  <div class="pmsg" id="pd-m"></div>
+  <div class="pbtns">
+    <button class="prim" onclick="__retry()">다시 (R)</button>
+    <button onclick="__nextItem()">다음 항목 →</button>
+    <button class="ghost" onclick="__toMenu()">항목 선택</button>
+  </div>
 </div></div>
 
 <div id="start"><div class="card">
-  <h1>운전면허 <span class="kr">장내기능시험</span></h1>
-  <p>도로교통공단 표준 코스를 3D로 재현했습니다.<br>
-     출발 → 가속구간 → 돌발 급정지 → 경사로 → 신호교차로 → 직각주차 → 종료<br>
-     100점 만점, <b style="color:#7fd1ff">80점 이상</b> 합격.</p>
-  <div class="keys">
-    <kbd>↑</kbd> 전진 가속 &nbsp; <kbd>↓</kbd> 브레이크(정지 후 후진)<br>
-    <kbd>←</kbd> <kbd>→</kbd> 좌우 조향 &nbsp; <kbd>Space</kbd> 급정지<br>
-    <kbd>Q</kbd> 좌측 지시등 &nbsp; <kbd>E</kbd> 우측 지시등<br>
-    <kbd>H</kbd> 비상등 &nbsp; <kbd>L</kbd> 전조등 &nbsp; <kbd>Enter</kbd> 시동
-  </div><br>
-  <button onclick="window.__begin()">시험 시작</button>
-  <div class="mobile-hint">PC는 키보드, 모바일은 화면 버튼으로 운전 (가로 화면 권장)</div>
+  <h1>운전면허 <span class="kr">기능시험</span> 연습</h1>
+  <p id="s-desc">시험 그대로 재현. 항목별로 기준점·공식을 익히고, 실전 모의고사로 점검하세요.</p>
+
+  <div id="menu-main">
+    <button class="menu-btn prim" onclick="__go('practice')">항목별 연습<span>기준점·공식 코치로 하나씩 마스터</span></button>
+    <button class="menu-btn" onclick="__startExam()">실전 모의고사<span>전체 코스 · 100점 만점 · 합격 판정</span></button>
+  </div>
+
+  <div id="menu-practice" style="display:none">
+    <div class="pgrid">
+      <div class="pitem" onclick="__startPractice('park')"><b>직각주차</b>기준점 잡고 후진</div>
+      <div class="pitem" onclick="__startPractice('ramp')"><b>경사로</b>정지 후 밀림없이 출발</div>
+      <div class="pitem" onclick="__startPractice('sudden')"><b>돌발 급정지</b>3초 내 정지+비상등</div>
+      <div class="pitem" onclick="__startPractice('turn')"><b>좌·우회전</b>지시등+차로 지키기</div>
+    </div>
+    <button class="menu-btn ghost" onclick="__go('main')">← 뒤로</button>
+  </div>
+
+  <div class="mobile-hint">PC=키보드 · 모바일=화면 버튼 · 시점 전환 <kbd>V</kbd> (운전석 / 3D) · 가로 화면 권장</div>
 </div></div>
 
 <script src="vendor/three.min.js"></script>
@@ -232,6 +305,7 @@ scene.background = new THREE.Color(0x9fc3e0);
 scene.fog = new THREE.Fog(0x9fc3e0, 60, 160);
 
 const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 500);
+const rearCam = new THREE.PerspectiveCamera(75, 2.6, 0.1, 500);   // 운전석 시점 후방 보조 화면
 
 const sun = new THREE.DirectionalLight(0xffffff, 1.05);
 sun.position.set(30, 60, 20); sun.castShadow = true;
@@ -433,6 +507,7 @@ scene.add(car);
 
 // ---------- 상태 ----------
 const S = {
+  mode:'menu', view:'3d', practiceItem:null,   // menu|exam|practice · 3d|cockpit
   cx:A[0], cy:A[1], h:Math.PI/2,   // 위치·헤딩(북)
   v:0, steer:0,
   engine:false, gear:'P', head:false,
@@ -472,6 +547,7 @@ function doToggle(k){
   else if(k==='e'){ S.sigR=!S.sigR; if(S.sigR)S.sigL=false; }
   else if(k==='h'){ S.haz=!S.haz; }
   else if(k==='l'){ S.head=!S.head; }
+  else if(k==='v'){ toggleView(); }
 }
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase();
@@ -504,6 +580,9 @@ function tapBtn(id,key){
 holdBtn('t-left','arrowleft'); holdBtn('t-right','arrowright');
 holdBtn('t-gas','arrowup');    holdBtn('t-brk','arrowdown');
 tapBtn('tog-eng','enter'); tapBtn('tog-L','q'); tapBtn('tog-R','e'); tapBtn('tog-H','h');
+{ const vb=document.getElementById('tog-view');
+  if(vb) vb.addEventListener('pointerdown',e=>{ e.preventDefault(); vb.classList.add('act');
+    toggleView(); setTimeout(()=>vb.classList.remove('act'),120); }); }
 // 안전망: 창 밖에서 손 떼거나 포커스 잃으면 모든 눌림 해제
 addEventListener('pointercancel',()=>{ ['arrowup','arrowdown','arrowleft','arrowright'].forEach(k=>keys[k]=false); });
 addEventListener('blur',()=>{ ['arrowup','arrowdown','arrowleft','arrowright',' '].forEach(k=>keys[k]=false);
@@ -538,11 +617,14 @@ function penalty(pts,reason){
 }
 function disq(reason){
   if(S.done) return;
+  if(S.mode==='practice'){ practiceDone(false, reason); return; }
   S.penalties.push({pts:'실격',reason}); finish(false, reason);
 }
 
 // ---------- 진행/채점 ----------
-function advance(){ S.stage++; S.stageT=0; setMission();
+function advance(){
+  if(S.mode==='practice'){ practiceDone(true); return; }
+  S.stage++; S.stageT=0; setMission();
   toast('✔ '+MISSIONS[Math.min(S.stage-1,MISSIONS.length-1)].s.split('·')[1].trim()+' 통과','g'); }
 
 function updateLogic(dt){
@@ -758,17 +840,43 @@ function syncHUD(){
   }
 }
 
-// ---------- 카메라 ----------
-function updateCamera(dt){
+// ---------- 카메라 (3D 추적 / 운전석) ----------
+function camTargets(){
   const fx=Math.cos(S.h), fy=Math.sin(S.h);
-  const wx=S.cx, wz=-S.cy;
-  const targetX=wx - fx*9, targetZ=wz + fy*9;
-  const cy = car.position.y;
-  camera.position.x += (targetX-camera.position.x)*Math.min(1,dt*4);
-  camera.position.z += (targetZ-camera.position.z)*Math.min(1,dt*4);
-  camera.position.y += ((cy+5.5)-camera.position.y)*Math.min(1,dt*4);
-  camera.lookAt(wx+fx*4, cy+1.2, wz-fy*4);
+  const wx=S.cx, wz=-S.cy, y=car.position.y;
+  if(S.view==='cockpit')
+    return { px:wx+fx*0.35, py:y+1.42, pz:wz-fy*0.35, lx:wx+fx*12, ly:y+0.95, lz:wz-fy*12 };
+  return { px:wx-fx*9, py:y+5.5, pz:wz+fy*9, lx:wx+fx*4, ly:y+1.2, lz:wz-fy*4 };
 }
+function updateCamera(dt){
+  const t=camTargets(), k=Math.min(1,dt*(S.view==='cockpit'?12:4));
+  camera.position.x+=(t.px-camera.position.x)*k;
+  camera.position.y+=(t.py-camera.position.y)*k;
+  camera.position.z+=(t.pz-camera.position.z)*k;
+  camera.lookAt(t.lx,t.ly,t.lz);
+}
+function snapCamera(){ const t=camTargets(); camera.position.set(t.px,t.py,t.pz); camera.lookAt(t.lx,t.ly,t.lz); }
+// 운전석 시점 후방 보조(후진 카메라) 인셋 렌더
+function renderRear(){
+  const rv=el('rearview'), r=rv.getBoundingClientRect();
+  if(r.width<10) return;
+  const x=r.left, y=innerHeight-r.bottom, w=r.width, h=r.height;
+  const fx=Math.cos(S.h), fy=Math.sin(S.h), wx=S.cx, wz=-S.cy, cyy=car.position.y;
+  rearCam.aspect=w/h; rearCam.updateProjectionMatrix();
+  rearCam.position.set(wx-fx*0.3, cyy+1.3, wz+fy*0.3);
+  rearCam.lookAt(wx-fx*12, cyy+0.2, wz+fy*12);
+  renderer.setScissorTest(true);
+  renderer.setViewport(x,y,w,h); renderer.setScissor(x,y,w,h);
+  renderer.render(scene,rearCam);
+  renderer.setScissorTest(false);
+  renderer.setViewport(0,0,innerWidth,innerHeight);
+}
+function setView(v){ S.view=v;
+  document.body.classList.toggle('cockpit', v==='cockpit');
+  const b=el('tog-view'); if(b) b.textContent = v==='cockpit'?'👁 운전석':'👁 3D';
+  snapCamera();
+}
+function toggleView(){ setView(S.view==='cockpit'?'3d':'cockpit'); }
 
 // ---------- 배너/결과 ----------
 function showBanner(cls,txt){ const b=el('banner'); b.className=cls; el('banner-txt').textContent=txt;
@@ -808,20 +916,96 @@ function loop(now){
     updateLogic(dt);
   }
   syncCar(); syncHUD(); updateCamera(dt);
+  car.visible = (S.view!=='cockpit');
+  renderer.setViewport(0,0,innerWidth,innerHeight);
   renderer.render(scene,camera);
+  if(S.view==='cockpit' && S.running && !S.done) renderRear();
 }
 requestAnimationFrame(loop);
 
-// ---------- 시작 ----------
-setTL('green');
-setMission();
-// 초기 카메라
-camera.position.set(0,6,10); camera.lookAt(0,1,-4);
-window.__begin=function(){
-  el('start').style.display='none';
-  S.running=true; S.tGlobal=0; S.departTimer=0;
-  toast('시험 시작 — Enter로 시동을 거세요','g');
+// ---------- 모드: 메뉴 / 실전 / 연습 ----------
+const PORDER=['park','ramp','sudden','turn'];
+const PRACTICE = {
+  park: { name:'직각주차', stage:8, cx:54, cy:27, h:-Math.PI/2, gear:'D',
+    steps:['주차칸을 지나 차를 앞으로 붙인다','뒷바퀴가 칸 라인을 넘으면 정지','핸들을 주차방향으로 끝까지 꺾고 후진(↓)','후방 보조로 라인 보며 칸에 진입','칸 안에 들어오면 핸들 원위치·3초 정지'],
+    tip:'후진은 악셀 없이 천천히. 운전석 시점(V)의 후방 보조로 라인 확인.',
+    done:'직각주차 성공! 시험에선 2분 안에 넣고 빠져나오면 됩니다.' },
+  ramp: { name:'경사로', stage:5, cx:14, cy:34, h:0, gear:'D',
+    steps:['경사로를 오르며 흰 정지선에 앞을 맞춰 정지(Space)','브레이크 유지 — 뒤로 밀리면 실격','다시 가속(↑)으로 밀림없이 출발','경사로를 넘어 통과'],
+    tip:'정지 후 30초 안에 출발. 뒤로 50cm 이상 밀리면 실격.',
+    done:'경사로 성공! 핵심은 정지 → 밀림없이 출발.' },
+  sudden: { name:'돌발 급정지', stage:3, cx:0, cy:20, h:Math.PI/2, gear:'D',
+    steps:['앞으로 주행(↑)','"돌발" 표시가 뜨면 즉시 급정지(Space)','정지와 동시에 비상등(H)','3초 내 완전 정지'],
+    tip:'표시 뜨고 3초 안에 멈춰야 합니다. 비상등 필수.',
+    done:'돌발 대응 성공! 반응속도가 관건.' },
+  turn: { name:'좌·우회전', stage:4, cx:0, cy:28, h:Math.PI/2, gear:'D',
+    steps:['우측 지시등(E) 켜기','속도 줄이고 코너 진입','차로(연석) 안쪽으로 우회전','코너를 빠져나가면 지시등 끄기'],
+    tip:'지시등 미점등·차로 위반은 감점. 연석 접촉 주의.',
+    done:'회전 성공! 지시등 + 차로 유지가 핵심.' },
 };
+
+function resetState(){
+  S.v=0; S.steer=0; S.head=false; S.sigL=S.sigR=S.haz=false;
+  S.score=100; S.done=false; S.penalties=[]; S.curbCooldown=0; S.stallCount=0;
+  S.tGlobal=0; S.stageT=0; S.departTimer=0; S.departLeftOk=false; S.accelMax=0;
+  S.suddenActive=false; S.suddenDone=false; S.suddenT=0;
+  S.rampStopped=false; S.rampMinX=999; S.rampT=0;
+  S.parkHold=0; S.parkDone=false; S.xingPassed=false;
+  S.turn1sig=false; S.turn2sig=false;
+  suddenSign.visible=false; hideBanner();
+  logHTML=''; el('log').innerHTML='';
+}
+function go(s){
+  el('menu-main').style.display = s==='main'?'flex':'none';
+  el('menu-practice').style.display = s==='practice'?'flex':'none';
+}
+function startExam(){
+  S.mode='exam'; S.practiceItem=null;
+  el('start').style.display='none'; el('pdone').style.display='none';
+  document.body.classList.remove('practice'); document.body.classList.add('driving');
+  resetState();
+  S.stage=0; S.cx=A[0]; S.cy=A[1]; S.h=Math.PI/2; S.engine=false; S.gear='P';
+  setMission(); syncCar(); snapCamera();
+  S.running=true;
+  toast('시험 시작 — Enter로 시동을 거세요','g');
+}
+function startPractice(item){
+  const p=PRACTICE[item]; if(!p) return;
+  S.mode='practice'; S.practiceItem=item;
+  el('start').style.display='none'; el('pdone').style.display='none';
+  document.body.classList.add('practice','driving');
+  resetState();
+  S.stage=p.stage; S.cx=p.cx; S.cy=p.cy; S.h=p.h; S.engine=true; S.gear=p.gear||'D';
+  el('m-stage').textContent='연습'; el('m-instr').textContent=p.name; el('m-sub').textContent='';
+  el('c-title').textContent=p.name;
+  el('c-steps').innerHTML=p.steps.map(s=>`<li>${s}</li>`).join('');
+  el('c-tip').textContent=p.tip||'';
+  syncCar(); snapCamera();
+  S.running=true;
+}
+function practiceDone(ok, reason){
+  if(S.done) return; S.done=true; S.running=false;
+  el('pd-v').textContent = ok?'성공!':'실패';
+  el('pd-v').className='pverdict '+(ok?'ok':'no');
+  el('pd-m').textContent = ok ? (PRACTICE[S.practiceItem].done||'통과했어요.')
+                              : (reason?('실패: '+reason):'다시 도전해 보세요.');
+  el('pdone').style.display='flex';
+}
+function retry(){ if(S.practiceItem) startPractice(S.practiceItem); }
+function nextItem(){ const i=PORDER.indexOf(S.practiceItem); startPractice(PORDER[(i+1)%PORDER.length]); }
+function toMenu(){
+  el('pdone').style.display='none'; el('result').style.display='none';
+  el('start').style.display='flex';
+  document.body.classList.remove('practice','driving');
+  S.running=false; S.mode='menu'; go('main');
+}
+// 시작 화면 onclick 노출
+window.__go=go; window.__startExam=startExam; window.__startPractice=startPractice;
+window.__retry=retry; window.__nextItem=nextItem; window.__toMenu=toMenu;
+
+// ---------- 초기화 ----------
+setTL('green'); setMission(); go('main');
+snapCamera();
 
 addEventListener('resize',()=>{
   camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
