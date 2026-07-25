@@ -772,8 +772,11 @@ function updatePhysics(dt){
   else if(down){
     if(S.v>0.2){ S.v -= BRAKE*dt; }         // 전진 중 ↓ = 브레이크
     else { S.gear='R'; S.v -= REV*dt; }      // 정지/후진 = 후진
-  } else { // 관성 감쇠
-    S.v -= Math.sign(S.v)*Math.min(Math.abs(S.v), ROLL*dt);
+  } else { // 무입력: 자동변속 크리프 (D=전진 / R=후진 살살 굴러감)
+    const creep = (S.gear==='R') ? -1.0 : 1.4;         // ≈ 3.6 / 5 km/h
+    const diff = creep - S.v;
+    const rate = (Math.abs(S.v) > Math.abs(creep)) ? ROLL : 1.3;   // 고속=관성감속, 저속=크리프 토크
+    S.v += Math.sign(diff) * Math.min(Math.abs(diff), rate*dt);
   }
   if(S.v>=0 && S.gear==='R' && up) S.gear='D';
   S.v=Math.max(-MAXR,Math.min(MAXF,S.v));
